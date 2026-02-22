@@ -465,6 +465,7 @@
   const iosBanner     = document.getElementById('iosBanner');
   const iosClose      = document.getElementById('iosClose');
 
+  const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                     || window.navigator.standalone;
@@ -489,6 +490,19 @@
   });
   installClose.addEventListener('click', () => installBanner.classList.remove('show'));
   iosClose.addEventListener('click',     () => iosBanner.classList.remove('show'));
+
+  // ── Audio context unlock (iOS requires resume on first user gesture) ─────
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  // Unlock on very first tap (silent, just wakes up the context)
+  document.addEventListener('touchstart', function unlock() {
+    getAudioCtx();
+    document.removeEventListener('touchstart', unlock);
+  }, { once: true });
 
   // ── Game logic ────────────────────────────────────────────────────────────
   const LETTERS = 'ABCDEFGHIJKLMNOPRSTUVWZ'.split('');
@@ -538,12 +552,21 @@
     countdownEl.textContent = '10s';
   }
 
+  function updateHint(state) {
+    const tapLabel  = '<span class="key">TAP</span> Antippen zum ';
+    const keyLabel  = '<span class="key">␣</span> Leertaste zum ';
+    const label = isMobile ? tapLabel : keyLabel;
+    if (state === 'idle')    hint.innerHTML = label + 'Starten';
+    if (state === 'running') hint.innerHTML = label + 'Stoppen';
+    if (state === 'stopped') hint.innerHTML = label + 'Weiterspielen';
+  }
+
   function start() {
     running = true; startTime = Date.now();
     display.classList.add('running');
     display.classList.remove('stopped');
     container.classList.remove('stopped');
-    hint.innerHTML = '<span class="key">TAP</span> Antippen zum Stoppen';
+    updateHint('running');
     hint.classList.add('active');
     resetArc(); updateArc();
     timerTimeout = setTimeout(() => stop(), MAX_TIME);
@@ -561,7 +584,7 @@
 
   function beep() {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = getAudioCtx();
       const t = ctx.currentTime;
       const notes = [
         { freq: 523.25, start: 0,    dur: 0.12, vol: 0.35 },
@@ -589,11 +612,13 @@
     display.classList.remove('running');
     display.classList.add('stopped');
     container.classList.add('stopped');
-    hint.innerHTML = '<span class="key">TAP</span> Antippen zum Weiterspielen';
+    updateHint('stopped');
     hint.classList.remove('active');
     timerArc.style.strokeDashoffset = 0;
     beep();
   }
+
+  updateHint('idle');
 
   function toggle() { running ? stop() : start(); }
 
