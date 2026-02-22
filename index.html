@@ -8,360 +8,345 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="SLF">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="Stadt Land Fluss">
-<meta name="description" content="Stadt Land Fluss – Buchstaben-Zufallsgenerator">
-
-<!-- PWA Manifest (inline via blob) -->
 <script>
-  const manifest = {
-    name: "Stadt Land Fluss",
-    short_name: "SLF",
-    description: "Buchstaben-Zufallsgenerator für Stadt Land Fluss",
-    start_url: ".",
-    display: "standalone",
-    background_color: "#f5efe0",
-    theme_color: "#c0334d",
-    orientation: "portrait",
-    icons: [
-      { src: generateIcon(192), sizes: "192x192", type: "image/png", purpose: "any maskable" },
-      { src: generateIcon(512), sizes: "512x512", type: "image/png", purpose: "any maskable" }
+  function generateIcon(size) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const x = c.getContext('2d');
+    x.fillStyle = '#f5efe0';
+    x.beginPath(); x.roundRect(0,0,size,size,size*.22); x.fill();
+    const cx = size/2;
+    const g = x.createRadialGradient(cx,cx*.85,0,cx,cx,size*.38);
+    g.addColorStop(0,'#e8507a'); g.addColorStop(1,'#c0334d');
+    x.fillStyle = g;
+    x.beginPath(); x.arc(cx,cx,size*.38,0,Math.PI*2); x.fill();
+    x.fillStyle = '#fdf6e8';
+    x.font = `bold ${size*.38}px Georgia,serif`;
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText('S', cx, cx + size*.02);
+    return c.toDataURL('image/png');
+  }
+  const mf = {
+    name:"Stadt Land Fluss", short_name:"SLF", start_url:".", display:"standalone",
+    background_color:"#f5efe0", theme_color:"#c0334d", orientation:"portrait",
+    icons:[
+      {src:generateIcon(192), sizes:"192x192", type:"image/png", purpose:"any maskable"},
+      {src:generateIcon(512), sizes:"512x512", type:"image/png", purpose:"any maskable"}
     ]
   };
-
-  function generateIcon(size) {
-    const canvas = document.createElement('canvas');
-    canvas.width = size; canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    // bg
-    ctx.fillStyle = '#f5efe0';
-    ctx.beginPath();
-    ctx.roundRect(0, 0, size, size, size * 0.22);
-    ctx.fill();
-    // circle
-    const cx = size / 2, r = size * 0.38;
-    const grad = ctx.createRadialGradient(cx, cx * 0.85, 0, cx, cx, r);
-    grad.addColorStop(0, '#e8507a');
-    grad.addColorStop(1, '#c0334d');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(cx, cx, r, 0, Math.PI * 2);
-    ctx.fill();
-    // letter S
-    ctx.fillStyle = '#fdf6e8';
-    ctx.font = `bold ${size * 0.38}px 'Georgia', serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('S', cx, cx + size * 0.02);
-    return canvas.toDataURL('image/png');
-  }
-
-  // inject manifest
-  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-  const manifestURL = URL.createObjectURL(blob);
-  const link = document.createElement('link');
-  link.rel = 'manifest'; link.href = manifestURL;
-  document.currentScript.after(link);
+  const ml = document.createElement('link');
+  ml.rel = 'manifest';
+  ml.href = URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));
+  document.currentScript.after(ml);
 </script>
-
-<!-- Apple touch icon (inline) -->
 <script>
   window.addEventListener('DOMContentLoaded', () => {
-    const icon = generateIcon(180);
     const al = document.createElement('link');
-    al.rel = 'apple-touch-icon'; al.href = icon;
+    al.rel = 'apple-touch-icon'; al.href = generateIcon(180);
     document.head.appendChild(al);
-
-    const favicon = document.createElement('link');
-    favicon.rel = 'icon'; favicon.href = generateIcon(64); favicon.type = 'image/png';
-    document.head.appendChild(favicon);
+    const fl = document.createElement('link');
+    fl.rel = 'icon'; fl.href = generateIcon(64); fl.type = 'image/png';
+    document.head.appendChild(fl);
   });
 </script>
-
 <title>Stadt Land Fluss</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #f5efe0;
-    --bg2: #fdf6e8;
-    --ink: #3a2e1e;
-    --pink: #c0334d;
-    --green: #7dc45a;
-    --lilac: #c46fa0;
-    --yellow: #f0b93a;
-    --sky: #e8507a;
-    --peach: #d94f72;
-  }
+:root {
+  --bg: #f5efe0;
+  --bg2: #fdf6e8;
+  --ink: #3a2e1e;
+  --pink: #c0334d;
+  --green: #7dc45a;
+  --lilac: #c46fa0;
+  --yellow: #f0b93a;
+  --sky: #e8507a;
+  --peach: #d94f72;
+}
 
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    user-select: none;
-    position: relative;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
 
-  .blob {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(70px);
-    opacity: 0.22;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .blob-1 { width: 380px; height: 380px; background: var(--pink);   top: -80px;  left: -80px; }
-  .blob-2 { width: 320px; height: 320px; background: var(--yellow); bottom: -60px; right: -60px; }
-  .blob-3 { width: 260px; height: 260px; background: var(--sky);    bottom: 40px; left: 10%; }
-  .blob-4 { width: 200px; height: 200px; background: var(--green);  top: 20%;    right: 8%; }
-  .blob-5 { width: 160px; height: 160px; background: var(--lilac);  top: 10%;    left: 40%; }
+/* Background blobs */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: .22;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob-1 { width:380px; height:380px; background:var(--pink);   top:-80px;    left:-80px; }
+.blob-2 { width:320px; height:320px; background:var(--yellow); bottom:-60px; right:-60px; }
+.blob-3 { width:260px; height:260px; background:var(--sky);    bottom:40px;  left:10%; }
+.blob-4 { width:200px; height:200px; background:var(--green);  top:20%;      right:8%; }
+.blob-5 { width:160px; height:160px; background:var(--lilac);  top:10%;      left:40%; }
 
-  .petal {
-    position: fixed;
-    pointer-events: none;
-    z-index: 0;
-    animation: drift linear infinite;
-    opacity: 0.55;
-  }
-  @keyframes drift {
-    0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0; }
-    10%  { opacity: 0.55; }
-    90%  { opacity: 0.4; }
-    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-  }
+/* Petals */
+.petal { position:fixed; pointer-events:none; z-index:0; animation:drift linear infinite; opacity:.55; }
+@keyframes drift {
+  0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0; }
+  10%  { opacity: .55; }
+  90%  { opacity: .4; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
 
-  .container {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+/* Gear button */
+#gearBtn {
+  position: fixed; top: 18px; right: 18px; z-index: 300;
+  background: var(--bg2);
+  border: 1.5px solid rgba(192,51,77,.2);
+  border-radius: 50%; width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(192,51,77,.1);
+  transition: transform .3s;
+}
+#gearBtn:hover { transform: rotate(45deg); }
+#gearBtn svg { width: 20px; height: 20px; fill: var(--pink); }
 
-  .title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(1.2rem, 5vw, 1.8rem);
-    letter-spacing: 0.4em;
-    color: var(--ink);
-    opacity: 0.45;
-    margin-bottom: 2rem;
-    text-transform: uppercase;
-  }
+/* Settings modal */
+#settingsModal {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  align-items: center; justify-content: center;
+  background: rgba(245,239,224,.88);
+  backdrop-filter: blur(8px);
+}
+#settingsModal.show { display: flex; }
+.modal-box {
+  background: var(--bg2);
+  border: 1.5px solid rgba(192,51,77,.2);
+  border-radius: 20px;
+  padding: 28px 28px 22px;
+  box-shadow: 0 8px 32px rgba(192,51,77,.13);
+  display: flex; flex-direction: column; gap: 18px;
+  min-width: 260px;
+}
+.modal-box h2 { font-family:'Bebas Neue',sans-serif; letter-spacing:.25em; font-size:1.4rem; color:var(--pink); }
+.modal-box label { font-size:.72rem; letter-spacing:.15em; text-transform:uppercase; opacity:.6; }
+.modal-box input[type=number] {
+  width: 100%; background: var(--bg);
+  border: 1.5px solid rgba(192,51,77,.25);
+  border-radius: 10px; padding: 10px 14px;
+  font-family: 'DM Mono',monospace; font-size: 1.1rem; color: var(--ink);
+  margin-top: 6px; outline: none;
+}
+.modal-box input:focus { border-color: var(--pink); }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; }
+.btn-cancel {
+  background:none; border:1.5px solid rgba(58,46,30,.2); color:var(--ink);
+  border-radius:9px; padding:8px 16px; cursor:pointer;
+  font-family:'DM Mono',monospace; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+}
+.btn-save {
+  background:var(--pink); border:none; color:#fff;
+  border-radius:9px; padding:8px 18px; cursor:pointer;
+  font-family:'DM Mono',monospace; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+}
 
-  .letter-display {
-    position: relative;
-    width: min(320px, 82vw);
-    height: min(320px, 82vw);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* Main container */
+.container {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+}
 
-  .card {
-    position: absolute;
-    inset: 20px;
-    border-radius: 50%;
-    background: var(--bg2);
-    box-shadow:
-      0 8px 32px rgba(180,120,80,0.12),
-      0 2px 8px rgba(180,120,80,0.08),
-      inset 0 1px 0 rgba(255,255,255,0.8);
-    border: 2px solid rgba(255,255,255,0.7);
-    z-index: 1;
-  }
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.2rem, 5vw, 1.8rem);
+  letter-spacing: .4em; color: var(--ink); opacity: .45;
+  margin-bottom: 2rem; text-transform: uppercase;
+}
 
-  .ring {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    border: 4px dashed rgba(192, 51, 77, 0.25);
-    animation: rotate 18s linear infinite;
-  }
-  .running .ring {
-    border-color: rgba(192, 51, 77, 0.55);
-    animation-duration: 2s;
-  }
-  @keyframes rotate {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
+/* Letter display: fixed square, everything centered inside */
+.letter-display {
+  position: relative;
+  width: min(300px, 80vw);
+  height: min(300px, 80vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .letter {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: min(13rem, 33vw);
-    line-height: 1;
-    color: var(--ink);
-    position: relative;
-    z-index: 2;
-    transition: color 0.15s;
-  }
-  .letter.flash { animation: flash 0.08s linear; }
-  @keyframes flash {
-    0%   { opacity: 1; }
-    50%  { opacity: 0.2; }
-    100% { opacity: 1; }
-  }
-  .stopped .letter { animation: colorCycle 2s ease-in-out infinite; }
-  @keyframes colorCycle {
-    0%   { color: var(--pink); }
-    25%  { color: var(--lilac); }
-    50%  { color: var(--green); }
-    75%  { color: var(--peach); }
-    100% { color: var(--pink); }
-  }
+/* White circle card */
+.card {
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  background: var(--bg2);
+  box-shadow: 0 8px 32px rgba(180,120,80,.12), 0 2px 8px rgba(180,120,80,.08), inset 0 1px 0 rgba(255,255,255,.8);
+  border: 2px solid rgba(255,255,255,.7);
+  z-index: 1;
+}
 
-  .dots {
-    position: absolute;
-    inset: -28px;
-    width: calc(100% + 56px);
-    height: calc(100% + 56px);
-    animation: rotate 30s linear infinite reverse;
-    z-index: 0;
-  }
-  .running .dots { animation-duration: 5s; }
+/* The single SVG ring — sits on top of card, below letter */
+.ring-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  /* rotate so arc starts at top */
+  transform: rotate(-90deg);
+}
 
-  .timer-svg {
-    position: absolute;
-    inset: -12px;
-    width: calc(100% + 24px);
-    height: calc(100% + 24px);
-    transform: rotate(-90deg);
-    pointer-events: none;
-    z-index: 3;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .running .timer-svg { opacity: 1; }
-  .timer-track { fill: none; stroke: rgba(58,46,30,0.08); stroke-width: 5; }
-  .timer-progress { fill: none; stroke: var(--green); stroke-width: 5; stroke-linecap: round; transition: stroke 0.3s; }
+/* Idle / spinning: rotate the whole SVG */
+.phase-idle .ring-svg,
+.phase-spin .ring-svg {
+  animation: rotateSvg 18s linear infinite;
+}
+.phase-spin .ring-svg { animation-duration: 2s; }
 
-  .countdown {
-    position: absolute;
-    bottom: 14px; right: 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--pink);
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 4;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-  }
-  .running .countdown { opacity: 0.85; }
+@keyframes rotateSvg {
+  from { transform: rotate(-90deg); }
+  to   { transform: rotate(270deg); }
+}
 
-  .status {
-    margin-top: 1.2rem;
-    font-size: 0.7rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    height: 1em;
-    color: var(--green);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .stopped .status { opacity: 0.8; }
+/* During countdown: no rotation */
+.phase-countdown .ring-svg,
+.phase-done .ring-svg {
+  animation: none;
+  transform: rotate(-90deg);
+}
 
-  .hint {
-    margin-top: 0.8rem;
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--ink);
-    opacity: 0.35;
-    transition: opacity 0.4s, color 0.4s;
-    text-align: center;
-    padding: 0 1rem;
-  }
-  .hint.active { opacity: 0.75; color: var(--pink); }
-  .hint .key {
-    display: inline-block;
-    border: 1.5px solid currentColor;
-    padding: 1px 6px 2px;
-    border-radius: 4px;
-    font-size: 0.65rem;
-    margin-right: 4px;
-  }
+/* Ring track (always visible, faint dashes) */
+#rTrack {
+  fill: none;
+  stroke: rgba(192,51,77,.15);
+  stroke-width: 5;
+  stroke-dasharray: 7 9;
+  stroke-linecap: round;
+}
 
-  /* Install banner */
-  #installBanner {
-    display: none;
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg2);
-    border: 1.5px solid rgba(192,51,77,0.25);
-    border-radius: 14px;
-    padding: 12px 18px;
-    box-shadow: 0 4px 20px rgba(192,51,77,0.12);
-    z-index: 100;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    color: var(--ink);
-    white-space: nowrap;
-  }
-  #installBanner.show { display: flex; }
-  #installBtn {
-    background: var(--pink);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    font-weight: 500;
-    text-transform: uppercase;
-  }
-  #installClose {
-    background: none; border: none; cursor: pointer;
-    color: var(--ink); opacity: 0.35; font-size: 1rem; line-height: 1;
-    padding: 0 2px;
-  }
+/* Ring progress arc (solid, shown during countdowns) */
+#rArc {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke .5s;
+}
 
-  /* iOS install hint */
-  #iosBanner {
-    display: none;
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg2);
-    border: 1.5px solid rgba(192,51,77,0.2);
-    border-radius: 14px;
-    padding: 14px 18px;
-    box-shadow: 0 4px 20px rgba(192,51,77,0.1);
-    z-index: 100;
-    font-size: 0.7rem;
-    letter-spacing: 0.07em;
-    color: var(--ink);
-    text-align: center;
-    max-width: 88vw;
-    line-height: 1.7;
-  }
-  #iosBanner.show { display: block; }
-  #iosBanner .close-ios {
-    display: inline-block; margin-top: 8px;
-    background: none; border: 1.5px solid var(--pink);
-    color: var(--pink); border-radius: 6px;
-    padding: 4px 12px; cursor: pointer;
-    font-family: 'DM Mono', monospace; font-size: 0.68rem;
-    letter-spacing: 0.1em; text-transform: uppercase;
-  }
+/* Big letter */
+.letter {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: min(12rem, 31vw);
+  line-height: 1;
+  color: var(--ink);
+  position: relative;
+  z-index: 3;
+  transition: color .15s;
+}
+.letter.flash { animation: flash .08s linear; }
+@keyframes flash { 50% { opacity: .2; } }
 
+.phase-countdown .letter,
+.phase-done .letter { animation: colorCycle 2s ease-in-out infinite; }
+@keyframes colorCycle {
+  0%   { color: var(--pink); }
+  25%  { color: var(--lilac); }
+  50%  { color: var(--green); }
+  75%  { color: var(--peach); }
+  100% { color: var(--pink); }
+}
 
+/* Seconds bubble — bottom-right corner of the display box */
+#secBubble {
+  position: absolute;
+  bottom: 0; right: 0;
+  background: var(--bg2);
+  border: 2px solid var(--pink);
+  border-radius: 50px;
+  padding: 4px 11px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  color: var(--pink);
+  letter-spacing: .05em;
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(192,51,77,.18);
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+#secBubble.visible { opacity: 1; }
+#secBubble.urgent  { background: var(--pink); color: #fff; }
+
+/* STOPP overlay */
+.stopp-overlay {
+  position: absolute; inset: 18px; border-radius: 50%;
+  background: rgba(245,239,224,.93);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 10; opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+.stopp-overlay.show { opacity: 1; }
+.stopp-overlay span { font-family:'Bebas Neue',sans-serif; font-size:min(4rem,10vw); color:var(--pink); letter-spacing:.15em; }
+.stopp-overlay small { font-size:.65rem; letter-spacing:.2em; text-transform:uppercase; color:var(--ink); opacity:.5; margin-top:4px; }
+
+/* Hint & status */
+.status {
+  margin-top: 1.2rem; font-size: .7rem; letter-spacing: .25em;
+  text-transform: uppercase; height: 1em; color: var(--green); opacity: 0; transition: opacity .3s;
+}
+.phase-countdown .status,
+.phase-done .status { opacity: .8; }
+
+.hint {
+  margin-top: .8rem; font-size: .7rem; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--ink); opacity: .35;
+  transition: opacity .4s, color .4s; text-align: center; padding: 0 1rem;
+}
+.hint.active { opacity: .75; color: var(--pink); }
+.hint .key {
+  display: inline-block; border: 1.5px solid currentColor;
+  padding: 1px 6px 2px; border-radius: 4px; font-size: .65rem; margin-right: 4px;
+}
+
+/* Install banners */
+#installBanner {
+  display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--bg2); border: 1.5px solid rgba(192,51,77,.25); border-radius: 14px;
+  padding: 12px 18px; box-shadow: 0 4px 20px rgba(192,51,77,.12);
+  z-index: 200; align-items: center; gap: 12px;
+  font-size: .72rem; letter-spacing: .08em; color: var(--ink); white-space: nowrap;
+}
+#installBanner.show { display: flex; }
+#installBtn {
+  background: var(--pink); color: #fff; border: none; border-radius: 8px;
+  padding: 6px 14px; font-family:'DM Mono',monospace; font-size:.7rem;
+  letter-spacing:.1em; cursor:pointer; font-weight:500; text-transform:uppercase;
+}
+#installClose { background:none; border:none; cursor:pointer; color:var(--ink); opacity:.35; font-size:1rem; padding:0 2px; }
+#iosBanner {
+  display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+  background:var(--bg2); border:1.5px solid rgba(192,51,77,.2); border-radius:14px;
+  padding:14px 18px; box-shadow:0 4px 20px rgba(192,51,77,.1);
+  z-index:200; font-size:.7rem; letter-spacing:.07em; color:var(--ink);
+  text-align:center; max-width:88vw; line-height:1.7;
+}
+#iosBanner.show { display: block; }
+.close-ios {
+  display:inline-block; margin-top:8px; background:none;
+  border:1.5px solid var(--pink); color:var(--pink); border-radius:6px;
+  padding:4px 12px; cursor:pointer; font-family:'DM Mono',monospace;
+  font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+}
 </style>
 </head>
 <body>
@@ -372,309 +357,309 @@
 <div class="blob blob-4"></div>
 <div class="blob blob-5"></div>
 
+<button id="gearBtn" aria-label="Einstellungen">
+  <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.02 7.02 0 0 0-1.62-.94l-.36-2.54A.48.48 0 0 0 14 2h-4a.48.48 0 0 0-.48.41l-.36 2.54a7.1 7.1 0 0 0-1.61.94l-2.39-.96a.48.48 0 0 0-.59.22L2.65 8.47a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.07.63-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.3.59.22l2.39-.96c.5.36 1.04.67 1.62.94l.36 2.54c.06.28.31.47.59.47h4c.28 0 .53-.19.58-.47l.36-2.54a7.1 7.1 0 0 0 1.61-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 0 1 8.4 12 3.6 3.6 0 0 1 12 8.4 3.6 3.6 0 0 1 15.6 12 3.6 3.6 0 0 1 12 15.6z"/></svg>
+</button>
+
+<div id="settingsModal">
+  <div class="modal-box">
+    <h2>Einstellungen</h2>
+    <div>
+      <label>Rundenzeit (Sekunden)</label>
+      <input type="number" id="roundInput" min="5" max="300" value="60">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="modalCancel">Abbrechen</button>
+      <button class="btn-save"   id="modalSave">Speichern</button>
+    </div>
+  </div>
+</div>
+
 <div class="container" id="container">
   <div class="title">Stadt · Land · Fluss</div>
 
-  <div class="letter-display" id="display">
-    <svg class="dots" viewBox="0 0 376 376">
-      <g fill="none">
-        <circle cx="188" cy="2"   r="3.5" fill="#c0334d" opacity="0.5"/>
-        <circle cx="281" cy="20"  r="3"   fill="#f0b93a" opacity="0.5"/>
-        <circle cx="354" cy="95"  r="3.5" fill="#7dc45a" opacity="0.5"/>
-        <circle cx="374" cy="188" r="3"   fill="#e8507a" opacity="0.5"/>
-        <circle cx="354" cy="281" r="3.5" fill="#c46fa0" opacity="0.5"/>
-        <circle cx="281" cy="356" r="3"   fill="#d94f72" opacity="0.5"/>
-        <circle cx="188" cy="374" r="3.5" fill="#c0334d" opacity="0.5"/>
-        <circle cx="95"  cy="356" r="3"   fill="#f0b93a" opacity="0.5"/>
-        <circle cx="22"  cy="281" r="3.5" fill="#7dc45a" opacity="0.5"/>
-        <circle cx="2"   cy="188" r="3"   fill="#e8507a" opacity="0.5"/>
-        <circle cx="22"  cy="95"  r="3.5" fill="#c46fa0" opacity="0.5"/>
-        <circle cx="95"  cy="20"  r="3"   fill="#d94f72" opacity="0.5"/>
-      </g>
-    </svg>
-
-    <div class="ring"></div>
+  <div class="letter-display phase-idle" id="display">
     <div class="card"></div>
 
-    <svg class="timer-svg" viewBox="0 0 344 344">
-      <circle class="timer-track"    cx="172" cy="172" r="168"/>
-      <circle class="timer-progress" id="timerArc" cx="172" cy="172" r="168"/>
+    <!-- The one SVG ring -->
+    <svg class="ring-svg" viewBox="0 0 300 300">
+      <circle id="rTrack" cx="150" cy="150" r="144"/>
+      <circle id="rArc"   cx="150" cy="150" r="144"/>
     </svg>
 
     <div class="letter" id="letter">?</div>
-    <div class="countdown" id="countdown">10s</div>
+    <div id="secBubble">10s</div>
+
+    <div class="stopp-overlay" id="stoppOverlay">
+      <span>STOPP</span>
+      <small>Runde beendet</small>
+    </div>
   </div>
 
-  <div class="status" id="status">🌸 Buchstabe gefunden!</div>
-  <div class="hint" id="hint"><span class="key">TAP</span> Antippen zum Starten</div>
+  <div class="status">🌸 Buchstabe gefunden!</div>
+  <div class="hint" id="hint"></div>
 </div>
 
-<!-- Android/Desktop install banner -->
 <div id="installBanner">
   🌸 Als App installieren
   <button id="installBtn">Installieren</button>
   <button id="installClose">✕</button>
 </div>
-
-<!-- iOS install hint -->
 <div id="iosBanner">
   <strong>Zum Homebildschirm hinzufügen:</strong><br>
   Tippe auf <strong>Teilen</strong> (□↑) und dann auf<br>
-  <strong>„Zum Home-Bildschirm"</strong> 🌸
-  <br>
+  <strong>„Zum Home-Bildschirm"</strong> 🌸<br>
   <button class="close-ios" id="iosClose">Verstanden</button>
 </div>
 
 <script>
-  // ── Service Worker (inline via blob) ──────────────────────────────────────
-  const swCode = `
-    const CACHE = 'slf-v1';
-    const ASSETS = [self.location.href];
-    self.addEventListener('install', e => {
-      e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-      self.skipWaiting();
-    });
-    self.addEventListener('activate', e => {
-      e.waitUntil(caches.keys().then(keys =>
-        Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-      ));
-      self.clients.claim();
-    });
-    self.addEventListener('fetch', e => {
-      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-    });
-  `;
-  if ('serviceWorker' in navigator) {
-    const swBlob = new Blob([swCode], { type: 'application/javascript' });
-    const swURL  = URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swURL).catch(() => {});
-  }
+// ── Service Worker ────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  const sw = `const C='slf-v4';self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',()=>self.clients.claim());self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
+}
 
-  // ── Install prompt ────────────────────────────────────────────────────────
-  let deferredPrompt = null;
-  const installBanner = document.getElementById('installBanner');
-  const installBtn    = document.getElementById('installBtn');
-  const installClose  = document.getElementById('installClose');
-  const iosBanner     = document.getElementById('iosBanner');
-  const iosClose      = document.getElementById('iosClose');
+// ── Install ───────────────────────────────────────────────────────────────
+let deferredPrompt = null;
+const installBanner = document.getElementById('installBanner');
+const iosBanner     = document.getElementById('iosBanner');
+const isIOS    = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
+if (isIOS && !window.navigator.standalone) setTimeout(()=>iosBanner.classList.add('show'), 1500);
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt=e; setTimeout(()=>installBanner.classList.add('show'),1200); });
+document.getElementById('installBtn').addEventListener('click', async () => { installBanner.classList.remove('show'); if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;} });
+document.getElementById('installClose').addEventListener('click', ()=>installBanner.classList.remove('show'));
+document.getElementById('iosClose').addEventListener('click',     ()=>iosBanner.classList.remove('show'));
 
-  const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-                    || window.navigator.standalone;
+// ── Settings ──────────────────────────────────────────────────────────────
+let roundDuration = 60;
+const settingsModal = document.getElementById('settingsModal');
+const roundInput    = document.getElementById('roundInput');
+document.getElementById('gearBtn').addEventListener('click', e => { e.stopPropagation(); roundInput.value = roundDuration; settingsModal.classList.add('show'); });
+document.getElementById('modalCancel').addEventListener('click', ()=>settingsModal.classList.remove('show'));
+document.getElementById('modalSave').addEventListener('click', () => {
+  const v = parseInt(roundInput.value);
+  if (v >= 5 && v <= 300) roundDuration = v;
+  settingsModal.classList.remove('show');
+});
+settingsModal.addEventListener('click', e => { if(e.target===settingsModal) settingsModal.classList.remove('show'); });
 
-  if (isIOS && !isStandalone) {
-    setTimeout(() => iosBanner.classList.add('show'), 1500);
-  }
+// ── Petals ────────────────────────────────────────────────────────────────
+const PETALS = ['🌸','🌼','🌺','🌻','💐','🌷'];
+for (let i = 0; i < 14; i++) {
+  const el = document.createElement('div');
+  el.className = 'petal';
+  el.textContent = PETALS[i % PETALS.length];
+  const dur = 8 + Math.random() * 14;
+  el.style.cssText = `left:${Math.random()*100}vw;font-size:${0.9+Math.random()*1.2}rem;animation-duration:${dur}s;animation-delay:-${Math.random()*dur}s`;
+  document.body.appendChild(el);
+}
 
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
-    setTimeout(() => installBanner.classList.add('show'), 1200);
-  });
-
-  installBtn.addEventListener('click', async () => {
-    installBanner.classList.remove('show');
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-    }
-  });
-  installClose.addEventListener('click', () => installBanner.classList.remove('show'));
-  iosClose.addEventListener('click',     () => iosBanner.classList.remove('show'));
-
-  // ── Audio context unlock (iOS requires resume on first user gesture) ─────
-  let audioCtx = null;
-  function getAudioCtx() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    return audioCtx;
-  }
-
-  // Unlock audio on very first interaction
-  function unlockAudio() {
-    const ctx = getAudioCtx();
-    // Play a silent buffer to fully unlock iOS audio
-    const buf = ctx.createBuffer(1, 1, 22050);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-    src.start(0);
-  }
-
-  // ── Game logic ────────────────────────────────────────────────────────────
-  const LETTERS = 'ABCDEFGHIJKLMNOPRSTUVWZ'.split('');
-  const MAX_TIME = 10000;
-  const CIRCUMFERENCE = 2 * Math.PI * 168;
-
-  const PETALS = ['🌸','🌼','🌺','🌻','💐','🌷'];
-  for (let i = 0; i < 14; i++) {
-    const el = document.createElement('div');
-    el.className = 'petal';
-    el.textContent = PETALS[Math.floor(Math.random() * PETALS.length)];
-    el.style.left = (Math.random() * 100) + 'vw';
-    el.style.fontSize = (0.9 + Math.random() * 1.2) + 'rem';
-    const dur = 8 + Math.random() * 14;
-    el.style.animationDuration = dur + 's';
-    el.style.animationDelay = -(Math.random() * dur) + 's';
-    document.body.appendChild(el);
-  }
-
-  let running = false, interval = null, timerTimeout = null, timerRaf = null, startTime = null, currentLetter = '?';
-
-  const letterEl    = document.getElementById('letter');
-  const display     = document.getElementById('display');
-  const container   = document.getElementById('container');
-  const hint        = document.getElementById('hint');
-  const timerArc    = document.getElementById('timerArc');
-  const countdownEl = document.getElementById('countdown');
-
-  timerArc.style.strokeDasharray  = CIRCUMFERENCE;
-  timerArc.style.strokeDashoffset = 0;
-
-  function updateArc() {
-    if (!running) return;
-    const elapsed  = Date.now() - startTime;
-    const progress = Math.min(elapsed / MAX_TIME, 1);
-    timerArc.style.strokeDashoffset = CIRCUMFERENCE * progress;
-    const remaining = 1 - progress;
-    timerArc.style.stroke = remaining > 0.5 ? '#7dc45a' : remaining > 0.25 ? '#f0b93a' : '#c0334d';
-    countdownEl.textContent = Math.max(0, Math.ceil((MAX_TIME - elapsed) / 1000)) + 's';
-    timerRaf = requestAnimationFrame(updateArc);
-  }
-
-  function resetArc() {
-    cancelAnimationFrame(timerRaf);
-    timerArc.style.strokeDashoffset = 0;
-    timerArc.style.stroke = '#7dc45a';
-    countdownEl.textContent = '10s';
-  }
-
-  function updateHint(state) {
-    const tapLabel  = '<span class="key">TAP</span> Antippen zum ';
-    const keyLabel  = '<span class="key">␣</span> Leertaste zum ';
-    const label = isMobile ? tapLabel : keyLabel;
-    if (state === 'idle')    hint.innerHTML = label + 'Starten';
-    if (state === 'running') hint.innerHTML = label + 'Stoppen';
-    if (state === 'stopped') hint.innerHTML = label + 'Weiterspielen';
-  }
-
-  function start() {
-    running = true; startTime = Date.now();
-    display.classList.add('running');
-    display.classList.remove('stopped');
-    container.classList.remove('stopped');
-    updateHint('running');
-    hint.classList.add('active');
-    resetArc(); updateArc();
-    timerTimeout = setTimeout(() => stop(), MAX_TIME);
-    interval = setInterval(() => {
-      const next = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-      if (next !== currentLetter) {
-        currentLetter = next;
-        letterEl.textContent = currentLetter;
-        letterEl.classList.remove('flash');
-        void letterEl.offsetWidth;
-        letterEl.classList.add('flash');
-      }
-    }, 80);
-  }
-
-  function beep() {
-    try {
-      const ctx = getAudioCtx();
-      const t = ctx.currentTime;
-      const notes = [
-        { freq: 523.25, start: 0,    dur: 0.12, vol: 0.35 },
-        { freq: 659.25, start: 0.11, dur: 0.12, vol: 0.35 },
-        { freq: 783.99, start: 0.22, dur: 0.22, vol: 0.4  },
-        { freq: 1046.5, start: 0.22, dur: 0.22, vol: 0.3  },
-        { freq: 1318.5, start: 0.22, dur: 0.18, vol: 0.18 },
-      ];
-      notes.forEach(({ freq, start, dur, vol }) => {
-        const osc = ctx.createOscillator(), gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, t + start);
-        gain.gain.setValueAtTime(0, t + start);
-        gain.gain.linearRampToValueAtTime(vol, t + start + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + start + dur + 0.25);
-        osc.start(t + start); osc.stop(t + start + dur + 0.3);
+// ── Audio ─────────────────────────────────────────────────────────────────
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function unlockAudio() {
+  const c=getCtx(), b=c.createBuffer(1,1,22050), s=c.createBufferSource();
+  s.buffer=b; s.connect(c.destination); s.start(0);
+}
+function playNotes(notes) {
+  try {
+    const c = getCtx();
+    const play = () => {
+      const t = c.currentTime;
+      notes.forEach(({f,s,d,v}) => {
+        const o=c.createOscillator(), g=c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type='triangle';
+        o.frequency.setValueAtTime(f, t+s);
+        g.gain.setValueAtTime(0, t+s);
+        g.gain.linearRampToValueAtTime(v, t+s+.03);
+        g.gain.exponentialRampToValueAtTime(.001, t+s+d+.25);
+        o.start(t+s); o.stop(t+s+d+.3);
       });
-    } catch(e) {}
-  }
-
-  function stop() {
-    running = false;
-    clearInterval(interval); clearTimeout(timerTimeout); cancelAnimationFrame(timerRaf);
-    display.classList.remove('running');
-    display.classList.add('stopped');
-    container.classList.add('stopped');
-    updateHint('stopped');
-    hint.classList.remove('active');
-    timerArc.style.strokeDashoffset = 0;
-    beep();
-  }
-
-  updateHint('idle');
-
-  function toggle() { running ? stop() : start(); }
-
-  // Desktop: Leertaste
-  document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } });
-
-  // Schütteln erkennen via DeviceMotion
-  let lastShake = 0;
-  const SHAKE_THRESHOLD = 18;
-  let lastX = null, lastY = null, lastZ = null;
-
-  function handleMotion(e) {
-    const acc = e.accelerationIncludingGravity;
-    if (!acc) return;
-    const { x, y, z } = acc;
-    if (lastX === null) { lastX = x; lastY = y; lastZ = z; return; }
-    const delta = Math.abs(x - lastX) + Math.abs(y - lastY) + Math.abs(z - lastZ);
-    lastX = x; lastY = y; lastZ = z;
-    if (delta > SHAKE_THRESHOLD && Date.now() - lastShake > 1000) {
-      lastShake = Date.now();
-      unlockAudio();
-      toggle();
+    };
+    // If context is suspended (iOS), resume first then play
+    if (c.state === 'suspended') {
+      c.resume().then(play);
+    } else {
+      play();
     }
-  }
+  } catch(e) {}
+}
+const beepFound = () => playNotes([{f:523.25,s:0,d:.12,v:.35},{f:659.25,s:.11,d:.12,v:.35},{f:783.99,s:.22,d:.22,v:.4},{f:1046.5,s:.22,d:.22,v:.3},{f:1318.5,s:.22,d:.18,v:.18}]);
+const beepEnd   = () => playNotes([{f:392,s:0,d:.15,v:.4},{f:349.23,s:.14,d:.15,v:.4},{f:261.63,s:.28,d:.35,v:.45}]);
 
-  // iOS 13+ braucht explizite Erlaubnis für DeviceMotion
-  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-    // Erlaubnis beim ersten Tap anfragen
-    document.addEventListener('click', async function askPermission() {
-      try {
-        const res = await DeviceMotionEvent.requestPermission();
-        if (res === 'granted') window.addEventListener('devicemotion', handleMotion);
-      } catch(e) {}
-      document.removeEventListener('click', askPermission);
-    }, { once: true });
+// ── Ring ──────────────────────────────────────────────────────────────────
+const rArc      = document.getElementById('rArc');
+const secBubble = document.getElementById('secBubble');
+const CIRC      = 2 * Math.PI * 144; // r=144
+
+// Show the ring as a dashed idle ring (no progress arc)
+function ringSetIdle() {
+  rArc.style.strokeDasharray  = '7 9';
+  rArc.style.strokeDashoffset = '0';
+  rArc.style.stroke           = 'rgba(192,51,77,.35)';
+}
+
+// Show a solid progress arc. frac = 1 (full) → 0 (empty)
+function ringSetProgress(frac) {
+  rArc.style.strokeDasharray  = `${CIRC} ${CIRC}`;
+  rArc.style.strokeDashoffset = `${CIRC * (1 - frac)}`;
+  rArc.style.stroke = frac > .5 ? 'var(--green)' : frac > .2 ? 'var(--yellow)' : 'var(--pink)';
+}
+
+ringSetIdle();
+
+// ── Generic countdown runner ──────────────────────────────────────────────
+let cdRaf = null, cdActive = false;
+function startCountdown(totalSec, onTick, onDone) {
+  cdActive = true;
+  const t0 = Date.now();
+  function tick() {
+    if (!cdActive) return;
+    const left = Math.max(0, totalSec - (Date.now()-t0)/1000);
+    ringSetProgress(left / totalSec);
+    onTick(left);
+    if (left <= 0) { cdActive=false; onDone(); return; }
+    cdRaf = requestAnimationFrame(tick);
+  }
+  tick();
+}
+function stopCountdown() {
+  cdActive = false;
+  cancelAnimationFrame(cdRaf);
+}
+
+// ── Phase management ──────────────────────────────────────────────────────
+const display = document.getElementById('display');
+function setPhase(p) { display.className = `letter-display phase-${p}`; }
+
+// ── Letter scramble ───────────────────────────────────────────────────────
+const LETTERS = 'ABCDEFGHIJKLMNOPRSTUVWZ'.split('');
+const letterEl = document.getElementById('letter');
+const hint     = document.getElementById('hint');
+const stoppOverlay = document.getElementById('stoppOverlay');
+let curLetter = '?', letterInt = null, spinHardStop = null, isSpinning = false;
+
+function updateHint(s) {
+  const lbl = isMobile
+    ? '<span class="key">TAP</span> Antippen zum '
+    : '<span class="key">␣</span> Leertaste zum ';
+  hint.innerHTML = lbl + (s==='idle'?'Starten' : s==='spin'?'Stoppen' : 'Weiterspielen');
+  hint.classList.toggle('active', s==='spin');
+}
+
+function startSpin() {
+  isSpinning = true;
+  setPhase('spin');
+  updateHint('spin');
+  secBubble.textContent = '10s';
+  secBubble.classList.add('visible');
+  secBubble.classList.remove('urgent');
+
+  letterInt = setInterval(() => {
+    const n = LETTERS[Math.floor(Math.random()*LETTERS.length)];
+    if (n !== curLetter) {
+      curLetter = n;
+      letterEl.textContent = n;
+      letterEl.classList.remove('flash');
+      void letterEl.offsetWidth;
+      letterEl.classList.add('flash');
+    }
+  }, 80);
+
+  startCountdown(10,
+    left => {
+      secBubble.textContent = Math.ceil(left) + 's';
+      if (left <= 3) secBubble.classList.add('urgent');
+    },
+    () => { if (isSpinning) stopSpin(); }
+  );
+
+  spinHardStop = setTimeout(() => { if (isSpinning) stopSpin(); }, 10500);
+}
+
+function stopSpin() {
+  isSpinning = false;
+  clearInterval(letterInt);
+  clearTimeout(spinHardStop);
+  stopCountdown();
+  setPhase('countdown');
+  updateHint('done');
+  beepFound();
+  secBubble.classList.remove('urgent');
+  startRoundCountdown();
+}
+
+function startRoundCountdown() {
+  startCountdown(roundDuration,
+    left => {
+      secBubble.textContent = Math.ceil(left) + 's';
+      secBubble.classList.add('visible');
+      if (left <= 10) secBubble.classList.add('urgent');
+    },
+    () => {
+      beepEnd();
+      secBubble.classList.remove('visible','urgent');
+      ringSetIdle();
+      setPhase('done');
+      stoppOverlay.classList.add('show');
+      setTimeout(() => { stoppOverlay.classList.remove('show'); setPhase('idle'); updateHint('idle'); }, 2500);
+    }
+  );
+}
+
+function toggle() {
+  if (settingsModal.classList.contains('show')) return;
+  if (isSpinning) {
+    stopSpin();
   } else {
-    // Android & ältere iOS: direkt registrieren
-    window.addEventListener('devicemotion', handleMotion);
+    stopCountdown();
+    ringSetIdle();
+    secBubble.classList.remove('visible','urgent');
+    startSpin();
   }
+}
 
-  // Universeller Tap/Click-Handler
-  // Ein unsichtbarer <button> über dem gesamten Bildschirm ist die
-  // zuverlässigste Methode auf iOS — Buttons erhalten immer Touch-Events
-  const btn = document.createElement('button');
-  Object.assign(btn.style, {
-    position: 'fixed', inset: '0', width: '100%', height: '100%',
-    opacity: '0', cursor: 'pointer', zIndex: '50',
-    background: 'none', border: 'none', padding: '0', margin: '0',
-    WebkitAppearance: 'none', appearance: 'none'
-  });
-  btn.setAttribute('aria-label', 'Starten / Stoppen');
-  btn.addEventListener('click', () => { unlockAudio(); toggle(); });
-  document.body.appendChild(btn);
+updateHint('idle');
 
-  // Banner-Buttons müssen über dem unsichtbaren Button liegen
-  document.getElementById('installBanner').style.zIndex = '200';
-  document.getElementById('iosBanner').style.zIndex = '200';
+// ── Input ─────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => { if(e.code==='Space'){e.preventDefault();toggle();} });
+
+const tapBtn = document.createElement('button');
+Object.assign(tapBtn.style, {
+  position:'fixed', inset:'0', width:'100%', height:'100%',
+  opacity:'0', cursor:'pointer', zIndex:'50',
+  background:'none', border:'none', padding:'0',
+  WebkitAppearance:'none', appearance:'none'
+});
+tapBtn.setAttribute('aria-label','Starten / Stoppen');
+tapBtn.addEventListener('click', () => { unlockAudio(); toggle(); });
+document.body.appendChild(tapBtn);
+
+// ── Shake ─────────────────────────────────────────────────────────────────
+let lastShake=0, lx=null, ly=null, lz=null;
+function handleMotion(e) {
+  const a = e.accelerationIncludingGravity; if (!a) return;
+  const {x,y,z} = a;
+  if (lx===null) { lx=x;ly=y;lz=z;return; }
+  const d = Math.abs(x-lx)+Math.abs(y-ly)+Math.abs(z-lz);
+  lx=x;ly=y;lz=z;
+  if (d>18 && Date.now()-lastShake>1000) { lastShake=Date.now(); unlockAudio(); toggle(); }
+}
+if (typeof DeviceMotionEvent!=='undefined' && typeof DeviceMotionEvent.requestPermission==='function') {
+  document.addEventListener('click', async function ask() {
+    try { const r=await DeviceMotionEvent.requestPermission(); if(r==='granted') window.addEventListener('devicemotion',handleMotion); }
+    catch(e){}
+    document.removeEventListener('click',ask);
+  }, {once:true});
+} else {
+  window.addEventListener('devicemotion', handleMotion);
+}
 </script>
 </body>
 </html>
