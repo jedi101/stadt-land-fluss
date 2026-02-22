@@ -109,6 +109,7 @@
     position: relative;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    cursor: pointer;
   }
 
   .blob {
@@ -624,17 +625,20 @@
   // Desktop: Leertaste
   document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } });
 
-  // Mobile: touchend ist zuverlässiger als touchstart und braucht kein preventDefault
-  document.addEventListener('touchend', e => {
+  // iOS Safari: braucht zwingend cursor:pointer auf body UND touchstart (nicht touchend)
+  // passive:true verhindert Scroll-Blockierung, kein preventDefault nötig
+  let lastTouch = 0;
+  document.addEventListener('touchstart', e => {
     if (e.target.closest('#installBanner, #iosBanner, #installBtn, #installClose, #iosClose')) return;
+    lastTouch = Date.now();
     unlockAudio();
     toggle();
   }, { passive: true });
 
-  // Desktop-Click (nur wenn kein Touch-Gerät)
+  // Desktop-Click — auf Touch-Geräten verhindert lastTouch Doppel-Trigger
   document.addEventListener('click', e => {
     if (e.target.closest('#installBanner, #iosBanner, #installBtn, #installClose, #iosClose')) return;
-    if ('ontouchstart' in window) return;
+    if (Date.now() - lastTouch < 500) return; // war schon touchstart → ignorieren
     toggle();
   });
 </script>
