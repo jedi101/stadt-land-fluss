@@ -624,20 +624,17 @@
   // Desktop: Leertaste
   document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } });
 
-  // Mobile + Desktop: touchstart auf dem gesamten Dokument
-  // touchstart reagiert sofort und zuverlässig, auch auf überlagerten Elementen
-  document.addEventListener('touchstart', e => {
-    // Installbanner-Buttons nicht triggern
-    if (e.target.closest('#installBanner, #iosBanner')) return;
-    e.preventDefault();
+  // Mobile: touchend ist zuverlässiger als touchstart und braucht kein preventDefault
+  document.addEventListener('touchend', e => {
+    if (e.target.closest('#installBanner, #iosBanner, #installBtn, #installClose, #iosClose')) return;
     unlockAudio();
     toggle();
-  }, { passive: false });
+  }, { passive: true });
 
-  // Desktop-Click als Fallback (wenn kein Touch)
+  // Desktop-Click (nur wenn kein Touch-Gerät)
   document.addEventListener('click', e => {
-    if (e.target.closest('#installBanner, #iosBanner')) return;
-    if ('ontouchstart' in window) return; // auf Touch-Geräten nur touchstart nutzen
+    if (e.target.closest('#installBanner, #iosBanner, #installBtn, #installClose, #iosClose')) return;
+    if ('ontouchstart' in window) return;
     toggle();
   });
 </script>
