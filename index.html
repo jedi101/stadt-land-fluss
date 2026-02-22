@@ -7,6 +7,70 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="SLF">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Stadt Land Fluss">
+<meta name="description" content="Stadt Land Fluss – Buchstaben-Zufallsgenerator">
+
+<script>
+  const manifest = {
+    name: "Stadt Land Fluss",
+    short_name: "SLF",
+    description: "Buchstaben-Zufallsgenerator für Stadt Land Fluss",
+    start_url: ".",
+    display: "standalone",
+    background_color: "#f5efe0",
+    theme_color: "#c0334d",
+    orientation: "portrait",
+    icons: [
+      { src: generateIcon(192), sizes: "192x192", type: "image/png", purpose: "any maskable" },
+      { src: generateIcon(512), sizes: "512x512", type: "image/png", purpose: "any maskable" }
+    ]
+  };
+
+  function generateIcon(size) {
+    const canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#f5efe0';
+    ctx.beginPath();
+    ctx.roundRect(0, 0, size, size, size * 0.22);
+    ctx.fill();
+    const cx = size / 2, r = size * 0.38;
+    const grad = ctx.createRadialGradient(cx, cx * 0.85, 0, cx, cx, r);
+    grad.addColorStop(0, '#e8507a');
+    grad.addColorStop(1, '#c0334d');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cx, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fdf6e8';
+    ctx.font = `bold ${size * 0.38}px 'Georgia', serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('S', cx, cx + size * 0.02);
+    return canvas.toDataURL('image/png');
+  }
+
+  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+  const manifestURL = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest'; link.href = manifestURL;
+  document.currentScript.after(link);
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const icon = generateIcon(180);
+    const al = document.createElement('link');
+    al.rel = 'apple-touch-icon'; al.href = icon;
+    document.head.appendChild(al);
+
+    const favicon = document.createElement('link');
+    favicon.rel = 'icon'; favicon.href = generateIcon(64); favicon.type = 'image/png';
+    document.head.appendChild(favicon);
+  });
+</script>
+
 <title>Stadt Land Fluss</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;500&display=swap" rel="stylesheet">
 <style>
@@ -20,18 +84,12 @@
     min-height: 100dvh; display: flex; flex-direction: column;
     align-items: center; justify-content: center; overflow: hidden;
     user-select: none; position: relative; -webkit-tap-highlight-color: transparent;
-    /* Verhindert Pull-to-Refresh und Scrolling auf iOS */
-    touch-action: none; 
+    touch-action: none;
   }
   .blob { position: fixed; border-radius: 50%; filter: blur(70px); opacity: 0.22; pointer-events: none; z-index: 0; }
   .blob-1 { width: 380px; height: 380px; background: var(--pink); top: -80px; left: -80px; }
   .blob-2 { width: 320px; height: 320px; background: var(--yellow); bottom: -60px; right: -60px; }
-  .petal { position: fixed; pointer-events: none; z-index: 0; animation: drift linear infinite; opacity: 0.55; }
-  @keyframes drift {
-    0% { transform: translateY(-40px) rotate(0deg); opacity: 0; }
-    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-  }
-  .container { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+  .container { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
   .title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.2rem, 5vw, 1.8rem); letter-spacing: 0.4em; opacity: 0.45; margin-bottom: 2rem; text-transform: uppercase; }
   .letter-display { position: relative; width: min(320px, 82vw); height: min(320px, 82vw); display: flex; align-items: center; justify-content: center; }
   .card { position: absolute; inset: 20px; border-radius: 50%; background: var(--bg2); box-shadow: 0 8px 32px rgba(180,120,80,0.12); border: 2px solid rgba(255,255,255,0.7); z-index: 1; }
@@ -43,26 +101,18 @@
   @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
   .stopped .letter { animation: colorCycle 2s ease-in-out infinite; }
   @keyframes colorCycle { 0%, 100% { color: var(--pink); } 50% { color: var(--green); } }
-  .timer-svg { position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); transform: rotate(-90deg); z-index: 3; opacity: 0; transition: opacity 0.3s; }
+  .timer-svg { position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); transform: rotate(-90deg); pointer-events: none; z-index: 3; opacity: 0; transition: opacity 0.3s; }
   .running .timer-svg { opacity: 1; }
   .timer-track { fill: none; stroke: rgba(58,46,30,0.08); stroke-width: 5; }
   .timer-progress { fill: none; stroke: var(--green); stroke-width: 5; stroke-linecap: round; }
   .countdown { position: absolute; bottom: 14px; right: 16px; font-size: 0.75rem; color: var(--pink); opacity: 0; z-index: 4; font-weight: 500; }
   .running .countdown { opacity: 0.85; }
-  .status { margin-top: 1.2rem; font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; height: 1em; color: var(--green); opacity: 0; }
+  .status { margin-top: 1.2rem; font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; height: 1em; color: var(--green); opacity: 0; transition: opacity 0.3s; }
   .stopped .status { opacity: 0.8; }
-  .hint { margin-top: 0.8rem; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.35; text-align: center; }
+  .hint { margin-top: 0.8rem; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.35; text-align: center; padding: 0 1rem; }
+  .hint.active { opacity: 0.75; color: var(--pink); }
   .hint .key { display: inline-block; border: 1.5px solid currentColor; padding: 1px 6px 2px; border-radius: 4px; font-size: 0.65rem; margin-right: 4px; }
-  
-  /* Overlay Button - KRITISCH FÜR IOS */
-  #interaction-layer {
-    position: fixed; inset: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.001); /* Hit-test fix */
-    z-index: 9999; cursor: pointer; border: none; outline: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  #installBanner, #iosBanner { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--bg2); border: 1.5px solid rgba(192,51,77,0.25); border-radius: 14px; padding: 12px 18px; box-shadow: 0 4px 20px rgba(192,51,77,0.12); z-index: 10000; font-size: 0.72rem; color: var(--ink); }
+  #installBanner, #iosBanner { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--bg2); border: 1.5px solid rgba(192,51,77,0.25); border-radius: 14px; padding: 12px 18px; box-shadow: 0 4px 20px rgba(192,51,77,0.12); z-index: 200; font-size: 0.72rem; color: var(--ink); }
   #installBanner.show { display: flex; align-items: center; gap: 12px; }
   #iosBanner.show { display: block; text-align: center; line-height: 1.7; }
   button.action-btn { background: var(--pink); color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-family: 'DM Mono', monospace; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; }
@@ -72,8 +122,6 @@
 
 <div class="blob blob-1"></div>
 <div class="blob blob-2"></div>
-
-<button id="interaction-layer" aria-label="Starten oder Stoppen"></button>
 
 <div class="container" id="container">
   <div class="title">Stadt · Land · Fluss</div>
@@ -100,25 +148,39 @@
 </div>
 
 <script>
-  // Game Logic
+  // Service Worker
+  const swCode = `
+    const CACHE = 'slf-v1';
+    self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll([self.location.href]))); self.skipWaiting(); });
+    self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
+    self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))); });
+  `;
+  if ('serviceWorker' in navigator) {
+    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+  }
+
+  // Logic
   const LETTERS = 'ABCDEFGHIJKLMNOPRSTUVWZ'.split('');
   const MAX_TIME = 10000;
   const CIRCUMFERENCE = 2 * Math.PI * 168;
   let running = false, interval = null, timerTimeout = null, timerRaf = null, startTime = null, currentLetter = '?';
   let audioCtx = null;
 
-  const letterEl = document.getElementById('letter'), display = document.getElementById('display'), 
-        container = document.getElementById('container'), hint = document.getElementById('hint'), 
-        timerArc = document.getElementById('timerArc'), countdownEl = document.getElementById('countdown'),
-        interactionLayer = document.getElementById('interaction-layer');
+  const letterEl = document.getElementById('letter'), display = document.getElementById('display'), container = document.getElementById('container'), hint = document.getElementById('hint'), timerArc = document.getElementById('timerArc'), countdownEl = document.getElementById('countdown');
 
   timerArc.style.strokeDasharray = CIRCUMFERENCE;
 
-  function unlockAudio() {
+  function getAudioCtx() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    const b = audioCtx.createBuffer(1, 1, 22050), s = audioCtx.createBufferSource();
-    s.buffer = b; s.connect(audioCtx.destination); s.start(0);
+    return audioCtx;
+  }
+
+  function unlockAudio() {
+    const ctx = getAudioCtx();
+    const buf = ctx.createBuffer(1, 1, 22050), src = ctx.createBufferSource();
+    src.buffer = buf; src.connect(ctx.destination); src.start(0);
   }
 
   function updateArc() {
@@ -133,65 +195,81 @@
   function start() {
     running = true; startTime = Date.now();
     display.classList.add('running'); display.classList.remove('stopped'); container.classList.remove('stopped');
-    updateHint('running'); timerArc.style.strokeDashoffset = 0; updateArc();
-    timerTimeout = setTimeout(stop, MAX_TIME);
+    updateHint('running'); hint.classList.add('active');
+    timerArc.style.strokeDashoffset = 0; updateArc();
+    timerTimeout = setTimeout(() => stop(), MAX_TIME);
     interval = setInterval(() => {
       const next = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-      if (next !== currentLetter) { 
-        currentLetter = next; letterEl.textContent = currentLetter; 
-        letterEl.classList.remove('flash'); void letterEl.offsetWidth; letterEl.classList.add('flash'); 
-      }
+      if (next !== currentLetter) { currentLetter = next; letterEl.textContent = currentLetter; letterEl.classList.remove('flash'); void letterEl.offsetWidth; letterEl.classList.add('flash'); }
     }, 80);
+  }
+
+  function beep() {
+    try {
+      const ctx = getAudioCtx();
+      const t = ctx.currentTime;
+      const sequence = [
+        { f: 523.25, start: 0, dur: 0.1 },
+        { f: 659.25, start: 0.1, dur: 0.1 },
+        { f: 783.99, start: 0.2, dur: 0.2 }
+      ];
+      sequence.forEach(n => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(n.f, t + n.start);
+        g.gain.setValueAtTime(0.1, t + n.start);
+        g.gain.exponentialRampToValueAtTime(0.001, t + n.start + n.dur);
+        osc.start(t + n.start);
+        osc.stop(t + n.start + n.dur + 0.3);
+      });
+    } catch(e) {}
   }
 
   function stop() {
     running = false; clearInterval(interval); clearTimeout(timerTimeout); cancelAnimationFrame(timerRaf);
     display.classList.remove('running'); display.classList.add('stopped'); container.classList.add('stopped');
-    updateHint('stopped'); beep();
+    updateHint('stopped'); hint.classList.remove('active'); timerArc.style.strokeDashoffset = 0; beep();
   }
 
-  function beep() {
-    try {
-      const t = audioCtx.currentTime;
-      [523, 659, 783].forEach((f, i) => {
-        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination); o.type = 'triangle';
-        o.frequency.setValueAtTime(f, t + i*0.1); g.gain.setValueAtTime(0, t + i*0.1);
-        g.gain.linearRampToValueAtTime(0.2, t + i*0.1 + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + i*0.1 + 0.1);
-        o.start(t + i*0.1); o.stop(t + i*0.1 + 0.2);
-      });
-    } catch(e) {}
-  }
+  function toggle() { running ? stop() : start(); }
 
   function updateHint(state) {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const label = isMobile ? '<span class="key">TAP</span> ' : '<span class="key">SPACE</span> ';
     const actions = { idle: 'Starten', running: 'Stoppen', stopped: 'Nochmal' };
-    hint.innerHTML = label + (actions[state] || 'Starten');
+    hint.innerHTML = label + actions[state];
   }
 
-  // EVENT HANDLING
-  const handleInteraction = (e) => {
-    if (e) e.preventDefault();
-    unlockAudio();
-    running ? stop() : start();
-  };
-
-  // iOS/Touch Fix: touchstart ist für Audio-Unlock auf Safari am sichersten
-  interactionLayer.addEventListener('touchstart', handleInteraction, { passive: false });
-  // Fallback für Desktop
-  interactionLayer.addEventListener('click', (e) => {
-    if (window.ontouchstart === undefined) handleInteraction(e);
+  // INTERACTION LOGIC (REPAIRED FOR IOS)
+  const interactionBtn = document.createElement('button');
+  Object.assign(interactionBtn.style, {
+    position: 'fixed', inset: '0', width: '100%', height: '100%',
+    opacity: '0', zIndex: '50', 
+    // Fix: iOS braucht eine Farbe (auch fast unsichtbar) für Hit-Testing
+    background: 'rgba(0,0,0,0.001)', 
+    border: 'none', outline: 'none', touchAction: 'none'
   });
-  window.addEventListener('keydown', e => { if (e.code === 'Space') handleInteraction(e); });
+  
+  // Pointerdown reagiert auf iOS sofort (ohne Click-Delay)
+  interactionBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    unlockAudio();
+    toggle();
+  }, { passive: false });
+  
+  document.body.appendChild(interactionBtn);
 
+  document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } });
+
+  // Banners
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.deferredPrompt = e; document.getElementById('installBanner').classList.add('show'); });
+  document.getElementById('installBtn').onclick = async () => { if (window.deferredPrompt) { window.deferredPrompt.prompt(); await window.deferredPrompt.userChoice; window.deferredPrompt = null; } };
+  document.getElementById('iosClose').onclick = () => document.getElementById('iosBanner').style.display = 'none';
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !window.navigator.standalone) { setTimeout(() => document.getElementById('iosBanner').classList.add('show'), 2000); }
+  
   updateHint('idle');
-
-  // PWA & iOS Banners
-  if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !window.navigator.standalone) {
-    setTimeout(() => document.getElementById('iosBanner').classList.add('show'), 2000);
-  }
-  document.getElementById('iosClose').onclick = () => document.getElementById('iosBanner').style.display='none';
 </script>
 </body>
 </html>
