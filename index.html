@@ -109,7 +109,6 @@
     position: relative;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    cursor: pointer;
   }
 
   .blob {
@@ -625,22 +624,23 @@
   // Desktop: Leertaste
   document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } });
 
-  // iOS Safari: braucht zwingend cursor:pointer auf body UND touchstart (nicht touchend)
-  // passive:true verhindert Scroll-Blockierung, kein preventDefault nötig
-  let lastTouch = 0;
-  document.addEventListener('touchstart', e => {
-    if (e.target.closest('#installBanner, #iosBanner, #installBtn, #installClose, #iosClose')) return;
-    lastTouch = Date.now();
-    unlockAudio();
-    toggle();
-  }, { passive: true });
-
-  // Desktop-Click — auf Touch-Geräten verhindert lastTouch Doppel-Trigger
-  document.addEventListener('click', e => {
-    if (e.target.closest('#installBanner, #iosBanner, #installBtn, #installClose, #iosClose')) return;
-    if (Date.now() - lastTouch < 500) return; // war schon touchstart → ignorieren
-    toggle();
+  // Universeller Tap/Click-Handler
+  // Ein unsichtbarer <button> über dem gesamten Bildschirm ist die
+  // zuverlässigste Methode auf iOS — Buttons erhalten immer Touch-Events
+  const btn = document.createElement('button');
+  Object.assign(btn.style, {
+    position: 'fixed', inset: '0', width: '100%', height: '100%',
+    opacity: '0', cursor: 'pointer', zIndex: '50',
+    background: 'none', border: 'none', padding: '0', margin: '0',
+    WebkitAppearance: 'none', appearance: 'none'
   });
+  btn.setAttribute('aria-label', 'Starten / Stoppen');
+  btn.addEventListener('click', () => { unlockAudio(); toggle(); });
+  document.body.appendChild(btn);
+
+  // Banner-Buttons müssen über dem unsichtbaren Button liegen
+  document.getElementById('installBanner').style.zIndex = '200';
+  document.getElementById('iosBanner').style.zIndex = '200';
 </script>
 </body>
 </html>
